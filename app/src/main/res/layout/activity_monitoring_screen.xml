@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MonitoringScreen">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="408dp"
+        android:layout_height="631dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <CheckBox
+            android:id="@+id/chkScroll"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:checked="true"
+            android:text="Scroll" />
+
+        <CheckBox
+            android:id="@+id/chkReceiveText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Read" />
+
+        <ScrollView
+            android:id="@+id/viewScroll"
+            android:layout_width="match_parent"
+            android:layout_height="573dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/txtReceive"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:layout_marginTop="20dp"
+                android:background="#eeeeee"
+                android:hint="  Message shows up here ..."
+                android:scrollbars="vertical"
+                android:typeface="monospace" />
+        </ScrollView>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnClearInput"
+        android:layout_width="163dp"
+        android:layout_height="50dp"
+        android:text="Clear Input"
+        app:layout_constraintEnd_toStartOf="@+id/disc"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/disc"
+        android:layout_width="162dp"
+        android:layout_height="52dp"
+        android:text="Disc_back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.935"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
