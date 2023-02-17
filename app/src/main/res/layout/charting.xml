@@ -3,12 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="#FFFFF0"
     android:layout_height="match_parent">
 
     <com.github.mikephil.charting.charts.LineChart
         android:id="@+id/chart1"
         android:layout_width="402dp"
         android:layout_height="636dp"
+        android:backgroundTint="#FDF5E6"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.461"
@@ -22,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Recalibrate"
+        android:backgroundTint="@color/teal_700"
         app:layout_constraintEnd_toStartOf="@+id/disc"
         app:layout_constraintHorizontal_bias="0.481"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,6 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="Return"
+        android:backgroundTint="@color/teal_700"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.729"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,6 +48,7 @@
         android:layout_height="21dp"
         android:layout_marginTop="16dp"
         android:text="Receive"
+        android:background="#FFFFF0"
         app:layout_constraintBottom_toTopOf="@+id/chart1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.308"

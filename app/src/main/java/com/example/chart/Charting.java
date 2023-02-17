@@ -410,7 +410,7 @@ public class Charting extends Activity {
     }
 
     private ILineDataSet createSet() {
-        LineDataSet set = new LineDataSet(mEntries, "Real-time Data");
+        LineDataSet set = new LineDataSet(mEntries, "Stress Score");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setColor(Color.RED);
         set.setLineWidth(2f);

@@ -4,6 +4,7 @@
     android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFF0"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -11,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:background="#FFFFF0"
         android:layout_marginTop="20dp">
 
         <Button
@@ -18,6 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="0dp"
+            android:backgroundTint="@color/teal_700"
             android:text="Search" />
 
         <Button
@@ -25,6 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="60dp"
+            android:backgroundTint="@color/teal_700"
             android:text="Connect" />
 
         <Button
@@ -32,6 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="62dp"
+            android:backgroundTint="@color/teal_700"
             android:text="Chart" />
 
 
@@ -40,7 +45,8 @@
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:backgroundTint="#FFFFF0">
     </ListView>
 
 </LinearLayout>
