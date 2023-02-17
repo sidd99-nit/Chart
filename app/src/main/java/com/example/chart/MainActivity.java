@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         search = findViewById(R.id.search);
         connect = findViewById(R.id.connect);
         //removable
