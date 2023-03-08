@@ -18,7 +18,7 @@
         <Button
             android:id="@+id/search"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="0dp"
             android:backgroundTint="@color/teal_700"
             android:text="Search" />
@@ -26,7 +26,7 @@
         <Button
             android:id="@+id/connect"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="60dp"
             android:backgroundTint="@color/teal_700"
             android:text="Connect" />
@@ -34,7 +34,7 @@
         <Button
             android:id="@+id/chart"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="62dp"
             android:backgroundTint="@color/teal_700"
             android:text="Chart" />

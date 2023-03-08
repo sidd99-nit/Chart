@@ -1,8 +1,13 @@
 package com.example.chart;
 
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.UUID;
 
 import android.Manifest;
@@ -14,6 +19,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -66,7 +72,7 @@ public class MonitoringScreen extends Activity {
         mDevice = b.getParcelable(MainActivity.DEVICE_EXTRA);
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
-        Log.d(TAG, "Ready");
+        Log.e(TAG, "Ready");
         mTxtReceive = findViewById(R.id.txtReceive);
         chkScroll = findViewById(R.id.chkScroll);
         chkReceiveText = findViewById(R.id.chkReceiveText);
@@ -101,66 +107,155 @@ public class MonitoringScreen extends Activity {
 
         private boolean bStop = false;
         private Thread t;
+        InputStream inputStream;
 
         public ReadInput() {
+            InputStream input = null;
             t = new Thread(this, "Input Thread");
             t.start();
+
+            try {
+                input = mBTSocket.getInputStream();
+            } catch (IOException e) { }
+
+            inputStream = input;
         }
 
         public boolean isRunning() {
             return t.isAlive();
         }
 
-        @Override
         public void run() {
-            InputStream inputStream;
+          //  InputStream inputStream;
 
             try {
+                    while (!bStop) {
+                        byte[] buffer = new byte[256];
+                        int bytesRead = 0;
+                        Log.d(TAG, "Inside while Input Stream:    " + inputStream);
+
+                        try {
+                                synchronized (this) {
+                                bytesRead = inputStream.read(buffer);
+                                Log.d(TAG, "Inside data: ");
+                                }
+
+                        //    if (bytesRead > 0) {
+                                String strInput = new String(buffer, 0, bytesRead);
+
+
+                                if (chkReceiveText.isChecked()) {
+                                    mTxtReceive.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mTxtReceive.append(strInput);
+
+                                            int txtLength = mTxtReceive.getEditableText().length();
+                                            if (txtLength > mMaxChars) {
+                                                mTxtReceive.getEditableText().delete(0, txtLength - mMaxChars);
+                                            }
+
+                                            if (chkScroll.isChecked()) {
+                                                scrollView.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        scrollView.fullScroll(View.FOCUS_DOWN);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                         //   }
+                        } catch (IOException e) {
+                            Log.e(TAG, "Error occurred while reading data from input stream: " + e.getMessage());
+                            e.printStackTrace();
+                            break;
+                        } catch (Exception e) {
+                            Log.e(TAG, "Unexpected error occurred: " + e.getMessage());
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Unexpected error occurred: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                try {
+                    mBTSocket.close();
+                    Log.d(TAG, "Socket Closed ");
+                } catch (IOException e) {
+                    Log.e(TAG, "Error occurred while closing socket: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+
+      /*  public void run() {
+
+            InputStream inputStream;
+            try {
                 inputStream = mBTSocket.getInputStream();
-                while (!bStop) {
-                    byte[] buffer = new byte[256];
-                    if (inputStream.available() > 0) {
-                        inputStream.read(buffer);
-                        int i = 0;
-                        /*
-                         * This is needed because new String(buffer) is taking the entire buffer i.e. 256 chars on Android 2.3.4 http://stackoverflow.com/a/8843462/1287554
-                         */
-                        for (i = 0; i < buffer.length && buffer[i] != 0; i++) {
+
+
+                Log.d(TAG, "Ready to receive data");
+
+                while (!Thread.currentThread().isInterrupted()) {
+
+                    byte[] buffer = new byte[1024];
+
+                    Log.d(TAG, "Entered byte"+inputStream);
+                      if(inputStream.available() > 0){
+
+                        Log.d(TAG, "Entered Luckily");
+
+
+                        int bytesRead = inputStream.read(buffer);
+
+                        if (bytesRead > 0) {
+                            final String strInput = new String(buffer, 0, bytesRead, StandardCharsets.UTF_8);
+
+
+                            if (chkReceiveText.isChecked()) {
+
+                                mTxtReceive.post(() -> {
+                                    runOnUiThread(() -> {
+                                        mTxtReceive.append(strInput);
+
+                                        int txtLength = mTxtReceive.getEditableText().length();
+                                        if (txtLength > mMaxChars) {
+                                            mTxtReceive.getEditableText().delete(0, txtLength - mMaxChars);
+                                        }
+
+                                        if (chkScroll.isChecked()) {
+                                            scrollView.fullScroll(View.FOCUS_DOWN);
+                                        }
+                                    });
+                                });
+
+                            }
                         }
-                        final String strInput = new String(buffer, 0, i);
-
-                        /*
-                         * If checked then receive text, better design would probably be to stop thread if unchecked and free resources, but this is a quick fix
-                         */
-
-                        if (chkReceiveText.isChecked()) {
-                            mTxtReceive.post(() -> {
-                                mTxtReceive.append(strInput);
-
-                                int txtLength = mTxtReceive.getEditableText().length();
-                                if(txtLength > mMaxChars){
-                                    mTxtReceive.getEditableText().delete(0, txtLength - mMaxChars);
-                                }
-
-                                if (chkScroll.isChecked()) { // Scroll only if this is checked
-                                    // Snippet from http://stackoverflow.com/a/4612082/1287554
-                                    scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
-                                }
-                            });
-                        }
-
                     }
                     Thread.sleep(500);
                 }
             } catch (IOException e) {
-// TODO Auto-generated catch block
-                e.printStackTrace();
+                Log.e(TAG, "Error occurred while reading data from input stream: " + e.getMessage());
             } catch (InterruptedException e) {
-// TODO Auto-generated catch block
-                e.printStackTrace();
+                Log.e(TAG, "Thread was interrupted: " + e.getMessage());
+            } catch (Exception e) {
+                Log.e(TAG, "Unexpected error occurred: " + e.getMessage());
+            }finally {
+                try {
+                    mBTSocket.close();
+                    Log.d(TAG, "Socket Closed ");
+                } catch (IOException e) {
+                    Log.e(TAG, "Error occurred while closing socket: " + e.getMessage());
+                }
             }
-
-        }
+        }  */
 
         public void stop() {
             bStop = true;
@@ -168,7 +263,7 @@ public class MonitoringScreen extends Activity {
 
     }
 
-    private class DisConnectBT extends AsyncTask<Void, Void, Void> {
+   /* private class DisConnectBT extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -204,20 +299,76 @@ public class MonitoringScreen extends Activity {
             }
         }
 
+    } */
+
+    private class DisConnectBT extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            if (mReadThread != null) {
+                mReadThread.stop();
+                while (mReadThread.isRunning()) {
+                    try {
+                        Thread.sleep(100); // Wait until it stops
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                mReadThread = null;
+            }
+
+            try {
+                if (mBTSocket != null) {
+                    mBTSocket.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            mIsBluetoothConnected = false;
+            if (mIsUserInitiatedDisconnect) {
+                finish();
+            }
+        }
     }
+
 
     private void msg(String s) {
         Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
     }
 
-    @Override
+ /*   @Override
     protected void onPause() {
         if (mBTSocket != null && mIsBluetoothConnected) {
             new DisConnectBT().execute();
         }
         Log.d(TAG, "Paused");
         super.onPause();
+    } */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            if (mBTSocket != null && mIsBluetoothConnected) {
+                new DisConnectBT().execute();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error occurred while pausing activity: " + e.getMessage());
+        }
+        Log.d(TAG, "Paused");
     }
+
 
     @Override
     protected void onResume() {
@@ -227,6 +378,7 @@ public class MonitoringScreen extends Activity {
         Log.d(TAG, "Resumed");
         super.onResume();
     }
+
 
     @Override
     protected void onStop() {
@@ -240,7 +392,7 @@ public class MonitoringScreen extends Activity {
         super.onSaveInstanceState(outState);
     }
 
-    @SuppressLint("StaticFieldLeak")
+   // @SuppressLint("StaticFieldLeak")
     private class ConnectBT extends AsyncTask<Void, Void, Void> {
         private boolean mConnectSuccessful = true;
 
@@ -249,7 +401,7 @@ public class MonitoringScreen extends Activity {
             progressDialog = ProgressDialog.show(MonitoringScreen.this, "Hold on", "Connecting");// http://stackoverflow.com/a/11130220/1287554
         }
 
-        @Override
+     /*   @Override
         protected Void doInBackground(Void... devices) {
 
             try {
@@ -284,9 +436,81 @@ public class MonitoringScreen extends Activity {
                 mConnectSuccessful = false;
             }
             return null;
+        }  */
+
+        @Override
+        protected Void doInBackground(Void... devices) {
+            try {
+                if (mBTSocket == null || !mIsBluetoothConnected) {
+                    if (ContextCompat.checkSelfPermission(MonitoringScreen.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED || ContextCompat.checkSelfPermission(MonitoringScreen.this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            ActivityCompat.requestPermissions(MonitoringScreen.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN}, 2);
+                        }
+                    } else {
+
+                       mBTSocket = mDevice.createInsecureRfcommSocketToServiceRecord(mDeviceUUID);
+                        BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                        mBTSocket.connect();
+
+                        if (mBTSocket.isConnected()) {
+
+                            Log.d(TAG, "mBTIsConnected ");
+
+                        } else {
+                            Log.d(TAG, "mBTNotConnected ");
+
+                        }
+                    }
+                }
+            } catch (IOException e) {
+                // Unable to connect to device
+                Log.e(TAG, "Error occurred while trying to connect to device: " + e.getMessage());
+                Toast.makeText(getApplicationContext(), "Could not connect to device: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                 e.printStackTrace();
+                mConnectSuccessful = false;
+            } catch (SecurityException e) {
+                // Permission denied
+                Log.e(TAG, "Permission denied " + e.getMessage());
+                Toast.makeText(getApplicationContext(), "Permission denied " + e.getMessage(), Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+                mConnectSuccessful = false;
+            }
+            return null;
         }
 
         @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
+            if (!mConnectSuccessful) {
+                Toast.makeText(getApplicationContext(), "Could not connect to device. Is it a Serial device? Also check if the UUID is correct in the settings", Toast.LENGTH_LONG).show();
+                finish();
+            } else {
+                msg("Connected to device");
+            /*    mIsBluetoothConnected = true;
+                mReadThread = new ReadInput(); // Kick off input reader//
+                mReadThread.start(); // Start the read thread  */
+
+                ReadInput readInput = new ReadInput();
+                Thread inputThread = new Thread(readInput);
+                inputThread.start();
+
+
+            }
+
+
+            if (progressDialog != null && progressDialog.isShowing() && !isFinishing()) {
+                runOnUiThread(() -> progressDialog.dismiss());
+            } else {
+                Log.e(TAG, "Progress dialog is null or not showing or activity is finishing");
+            }
+
+
+        }
+
+
+
+    /*    @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
 
@@ -299,8 +523,10 @@ public class MonitoringScreen extends Activity {
                 mReadThread = new ReadInput(); // Kick off input reader
             }
 
-            progressDialog.dismiss();
-        }
+           if(progressDialog!=null && progressDialog.isShowing()) {
+               progressDialog.dismiss();
+           }
+        }  */
 
     }
 

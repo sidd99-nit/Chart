@@ -15,6 +15,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -82,6 +83,7 @@ public class Charting extends Activity {
 //   chkScroll = findViewById(R.id.chkScroll);
     private CheckBox chkReceiveText;
     private Button disc;
+    private Button reset;
 
 
     private boolean mIsBluetoothConnected = false;
@@ -105,6 +107,7 @@ public class Charting extends Activity {
         //   mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
         disc=findViewById(R.id.disc);
         chkReceiveText=findViewById(R.id.chkReceiveText);
+        reset=findViewById(R.id.reset);
 
      //   mBtnClearInput.setOnClickListener(arg0 -> mTxtReceive.setText(""));
 
@@ -123,6 +126,12 @@ public class Charting extends Activity {
                 { }
             }
             finish();
+        });
+
+        reset.setOnClickListener(v -> {
+            Intent intent1 =getIntent();
+            finish();
+            startActivity(intent1);
         });
 
 
@@ -156,6 +165,7 @@ public class Charting extends Activity {
         XAxis xAxis = mChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
+        xAxis.setTypeface(Typeface.DEFAULT_BOLD);
         xAxis.setGranularity(1f); // only intervals of 1 unit
         xAxis.setLabelCount(5); // show 5 labels
         xAxis.setValueFormatter(new ValueFormatter() {
@@ -171,6 +181,7 @@ public class Charting extends Activity {
         leftAxis.setDrawGridLines(true);
         leftAxis.setAxisMinimum(0f);
         leftAxis.setAxisMaximum(120f);
+        leftAxis.setTypeface(Typeface.DEFAULT_BOLD);
 
 
         //removable for right axis

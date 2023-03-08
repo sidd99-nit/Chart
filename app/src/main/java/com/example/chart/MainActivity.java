@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,7 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int SETTINGS = 20;
     private UUID mDeviceUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private int mBufferSize = 50000; //Default
-    public static final String DEVICE_EXTRA = "com.example.anysensormonitoring.SOCKET";
+  //  public static final String DEVICE_EXTRA = "com.example.anysensormonitoring.SOCKET";
+   public static final String DEVICE_EXTRA = "98:D3:51:F6:11:53";
     public static final String DEVICE_UUID = "com.example.anysensormonitoring.uuid";
     private static final String DEVICE_LIST = "com.example.anysensormonitoring.devicelist";
     private static final String DEVICE_LIST_SELECTED = "com.example.anysensormonitoring.devicelistselected";
@@ -65,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         //removable
         listView = findViewById(R.id.listview);
 
-        if (savedInstanceState != null) {
+       /* if (savedInstanceState != null) {
             ArrayList<BluetoothDevice> list = savedInstanceState.getParcelableArrayList(DEVICE_LIST);
             if (list != null) {
                 initList(list);
@@ -81,8 +83,33 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             initList(new ArrayList<>());
+        } */
+
+        if (savedInstanceState != null) {
+            ArrayList<BluetoothDevice> list = savedInstanceState.getParcelableArrayList(DEVICE_LIST);
+            if (list != null) {
+                initList(list);
+                MyAdapter adapter = (MyAdapter) listView.getAdapter();
+                int selectedIndex = savedInstanceState.getInt(DEVICE_LIST_SELECTED, -1);
+                if (adapter != null) {
+                    if (selectedIndex != -1) {
+                        adapter.setSelectedIndex(selectedIndex);
+                        connect.setEnabled(true);
+                    }
+                } else {
+                    Log.e(TAG, "Adapter is null");
+                    initList(new ArrayList<>());
+                }
+            } else {
+                Log.e(TAG, "Device list is null");
+                initList(new ArrayList<>());
+            }
+        } else {
+            initList(new ArrayList<>());
         }
-        search.setOnClickListener(arg0 -> {
+
+
+       /* search.setOnClickListener(arg0 -> {
             mBTAdapter = BluetoothAdapter.getDefaultAdapter();
 
             if (mBTAdapter == null) {
@@ -104,24 +131,61 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 new SearchDevices().execute();
             }
+        });  */
+
+        search.setOnClickListener(arg0 -> {
+            mBTAdapter = BluetoothAdapter.getDefaultAdapter();
+
+            if (mBTAdapter == null) {
+                Toast.makeText(getApplicationContext(), "Bluetooth not found", Toast.LENGTH_SHORT).show();
+            } else if (!mBTAdapter.isEnabled()) {
+                Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 2);
+                    }
+                }
+
+                try {
+                    startActivityForResult(enableBT,BT_ENABLE_REQUEST);
+                } catch (ActivityNotFoundException e) {
+                    Toast.makeText(getApplicationContext(), "Bluetooth enable request failed", Toast.LENGTH_SHORT).show();
+                }
+
+            } else {
+                new SearchDevices().execute();
+            }
         });
 
+
         connect.setOnClickListener(arg0 -> {
-            BluetoothDevice device = ((MyAdapter) (listView.getAdapter())).getSelectedItem();
-            Intent intent = new Intent(getApplicationContext(), MonitoringScreen.class);
-            intent.putExtra(DEVICE_EXTRA, device);
-            intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
-            intent.putExtra(BUFFER_SIZE, mBufferSize);
-            startActivity(intent);
+            try {
+                BluetoothDevice device = ((MyAdapter) (listView.getAdapter())).getSelectedItem();
+                Intent intent = new Intent(getApplicationContext(), MonitoringScreen.class);
+                intent.putExtra(DEVICE_EXTRA, device);
+                intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
+                intent.putExtra(BUFFER_SIZE, mBufferSize);
+                startActivity(intent);
+            }catch (Exception e){
+                Toast.makeText(getApplicationContext(),"No Device Selected",Toast.LENGTH_SHORT).show();
+                Log.e("My App","No Device Selected",e);
+            }
         });
 
         chart.setOnClickListener(arg0 -> {
-            BluetoothDevice device = ((MyAdapter) (listView.getAdapter())).getSelectedItem();
-            Intent intent = new Intent(getApplicationContext(), Charting.class);
-            intent.putExtra(DEVICE_EXTRA, device);
-            intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
-            intent.putExtra(BUFFER_SIZE, mBufferSize);
-            startActivity(intent);
+
+            try {
+                BluetoothDevice device = ((MyAdapter) (listView.getAdapter())).getSelectedItem();
+                Intent intent = new Intent(getApplicationContext(), Charting.class);
+                intent.putExtra(DEVICE_EXTRA, device);
+                intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
+                intent.putExtra(BUFFER_SIZE, mBufferSize);
+                startActivity(intent);
+            }catch (Exception e){
+                Toast.makeText(getApplicationContext(),"No Device Selected",Toast.LENGTH_SHORT).show();
+                Log.e("My App","No Device Selected",e);
+            }
         });
 
 
@@ -307,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
             return myList;
         }
 
-        @Override
+      /*  @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View vi = convertView;
             ViewHolder holder;
@@ -341,6 +405,43 @@ public class MainActivity extends AppCompatActivity {
             holder.tv.setText(device.getName() + "\n " + device.getAddress());
 
             return vi;
+        } */
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View vi = convertView;
+            ViewHolder holder;
+            try {
+                if (convertView == null) {
+                    vi = LayoutInflater.from(context).inflate(R.layout.list_item, null);
+                    holder = new ViewHolder();
+                    holder.tv = vi.findViewById(R.id.lstContent);
+                    vi.setTag(holder);
+                } else {
+                    holder = (ViewHolder) vi.getTag();
+                }
+
+                if (selectedIndex != -1 && position == selectedIndex) {
+                    holder.tv.setBackgroundColor(selectedColor);
+                } else {
+                    holder.tv.setBackgroundColor(Color.WHITE);
+                }
+                BluetoothDevice device = myList.get(position);
+
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED)
+                {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                    {
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 2);
+                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 2);
+                    }
+                }
+
+                holder.tv.setText(device.getName() + "\n " + device.getAddress());
+            } catch (Exception e) {
+                Log.e(TAG, "Error in getView(): " + e.getMessage());
+            }
+
+            return vi;
         }
 
     }
@@ -352,12 +453,30 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
+  /*  @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId()==R.id.action_settings)
         {
             Intent intent = new Intent(MainActivity.this, PreferencesActivity.class);
             startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
+    } */
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        try {
+            if (item.getItemId() == R.id.action_settings) {
+                Intent intent = new Intent(MainActivity.this, PreferencesActivity.class);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
+                    // handle error - activity not found
+                }
+            }
+            return super.onOptionsItemSelected(item);
+        } catch (Exception e){
+            Log.e(TAG, "Error : " + e.getMessage());
         }
         return super.onOptionsItemSelected(item);
     }
