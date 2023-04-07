@@ -1,8 +1,16 @@
 package com.example.chart;
 
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 import android.Manifest;
@@ -13,12 +21,17 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.text.format.DateFormat;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -74,14 +87,9 @@ public class Charting extends Activity {
 
     private boolean mIsUserInitiatedDisconnect = false;
 
-    // All controls here
-    private TextView mTxtReceive;
-    private Button mBtnClearInput;
-    private ScrollView scrollView;
-    private CheckBox chkScroll;
-    //  mTxtReceive = findViewById(R.id.txtReceive);
-//   chkScroll = findViewById(R.id.chkScroll);
+
     private CheckBox chkReceiveText;
+    private  CheckBox  chkFile;
     private Button disc;
     private Button reset;
 
@@ -91,6 +99,15 @@ public class Charting extends Activity {
     private BluetoothDevice mDevice;
 
     private ProgressDialog progressDialog;
+
+    //file system
+
+    String FILENAME =  DateFormat.format("MM-dd-yyyyy-h-mmssaa", System.currentTimeMillis()).toString();
+    File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    File myFile = new File(folder,"Stress"+ FILENAME+".txt"); ;
+    FileOutputStream fstream;
+
+    //file system
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,12 +121,11 @@ public class Charting extends Activity {
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
         Log.d(TAG, "Ready");
-        //   mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
         disc=findViewById(R.id.disc);
         chkReceiveText=findViewById(R.id.chkReceiveText);
+        chkFile=findViewById(R.id.chkFile);
         reset=findViewById(R.id.reset);
 
-     //   mBtnClearInput.setOnClickListener(arg0 -> mTxtReceive.setText(""));
 
         disc.setOnClickListener(view -> {
 
@@ -129,6 +145,7 @@ public class Charting extends Activity {
         });
 
         reset.setOnClickListener(v -> {
+            restartRecalibrate();
             Intent intent1 =getIntent();
             finish();
             startActivity(intent1);
@@ -155,7 +172,9 @@ public class Charting extends Activity {
         mChart.setPinchZoom(true);
 
         // Set the background color
-        mChart.setBackgroundColor(Color.WHITE);
+      //  mChart.setBackgroundColor(Color.WHITE);
+        mChart.setBackgroundColor(Color.parseColor("#F6FCFB"));
+
 
         // Add an empty data set to the chart
         LineData data = new LineData();
@@ -166,7 +185,7 @@ public class Charting extends Activity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setTypeface(Typeface.DEFAULT_BOLD);
-        xAxis.setGranularity(1f); // only intervals of 1 unit
+        xAxis.setGranularity(2f); // only intervals of 2 unit
         xAxis.setLabelCount(5); // show 5 labels
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
@@ -195,12 +214,27 @@ public class Charting extends Activity {
         //for charting purpose
 
 
+        int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
+        //file system
+
     }
+
+
 
     private class ReadInput implements Runnable {
 
+
         private boolean bStop = false;
         private Thread t;
+
+
+
 
         public ReadInput() {
             t = new Thread(this, "Input Thread");
@@ -217,6 +251,7 @@ public class Charting extends Activity {
 
             try {
                 inputStream = mBTSocket.getInputStream();
+
                 while (!bStop) {
                     byte[] buffer = new byte[256];
                     if (inputStream.available() > 0) {
@@ -229,25 +264,40 @@ public class Charting extends Activity {
                         }
                         final String strInput = new String(buffer, 0, i);
                         int gsrV=extractNumberFromString(strInput);
+                        String str = Integer.toString(gsrV);
+
+                        //file system
+
+                        if(chkFile.isChecked() && gsrV!=0) {
+                            try {
+                                fstream = new FileOutputStream(myFile, true);
+                                fstream.write(str.getBytes());
+                                fstream.write(" , ".getBytes());
+                                fstream.close();
+
+                            } catch (IOException e) {
+                                Log.e(TAG, "Error in writing file");
+                            }
+                        }
+
+                        //file system
 
                         /*
                          * If checked then receive text, better design would probably be to stop thread if unchecked and free resources, but this is a quick fix
                          */
 
                         if (chkReceiveText.isChecked()) {
-                             //  mTxtReceive.post(() -> {
-                              //  mTxtReceive.append(strInput);
-                             //  });
-
-                            addEntry(new Random().nextInt(100));
-
-
-
+                            //  mTxtReceive.post(() -> {
+                            //  mTxtReceive.append(strInput);
+                            //  });
+                            if(gsrV!=0) {
+                                addEntry(gsrV);
+                            }
 
                         }
 
                     }
-                    Thread.sleep(500);
+                    Thread.sleep(2000);
                 }
             } catch (IOException e) {
 // TODO Auto-generated catch block
@@ -295,10 +345,8 @@ public class Charting extends Activity {
 
             if (mReadThread != null) {
                 mReadThread.stop();
-                while (mReadThread.isRunning())
-                    ; // Wait until it stops
+                while (mReadThread.isRunning()) ; // Wait until it stops
                 mReadThread = null;
-
             }
 
             try {
@@ -362,40 +410,50 @@ public class Charting extends Activity {
 
         @Override
         protected void onPreExecute() {
+
             progressDialog = ProgressDialog.show(Charting.this, "Hold on", "Connecting");// http://stackoverflow.com/a/11130220/1287554
         }
+
+     /*   */
 
         @Override
         protected Void doInBackground(Void... devices) {
 
             try {
                 if (mBTSocket == null || !mIsBluetoothConnected) {
-
-                    if (ContextCompat.checkSelfPermission(Charting.this, android.Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED && ContextCompat.checkSelfPermission(Charting.this, android.Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED)
-                    {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                        {
-                            ActivityCompat.requestPermissions(Charting.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 2);
-                            ActivityCompat.requestPermissions(Charting.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 2);
-
-                        }
-                    }
-
-                    mBTSocket = mDevice.createInsecureRfcommSocketToServiceRecord(mDeviceUUID);
-
-                    if (ContextCompat.checkSelfPermission(Charting.this, android.Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED) {
+                    if (ContextCompat.checkSelfPermission(Charting.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED || ContextCompat.checkSelfPermission(Charting.this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            ActivityCompat.requestPermissions(Charting.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 2);
+                            ActivityCompat.requestPermissions(Charting.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN}, 2);
+                        }
+                    } else {
+                        // Check if the Bluetooth socket and device information exists in onRetainNonConfigurationInstance()
+                        Charting.BluetoothSocketWrapper socketWrapper = (Charting.BluetoothSocketWrapper) getLastNonConfigurationInstance();
+                        if (socketWrapper != null) {
+                            mBTSocket = socketWrapper.socket;
+                            mDevice = socketWrapper.device;
+                        } else {
+                            mBTSocket = mDevice.createInsecureRfcommSocketToServiceRecord(mDeviceUUID);
+                            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+                            mBTSocket.connect();
                         }
 
+                        if (mBTSocket.isConnected()) {
+                            Log.d(TAG, "mBTIsConnected ");
+                        } else {
+                            Log.d(TAG, "mBTNotConnected ");
+                        }
                     }
-
-                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-
-                    mBTSocket.connect();
                 }
             } catch (IOException e) {
                 // Unable to connect to device
+                Log.e(TAG, "Error occurred while trying to connect to device: " + e.getMessage());
+                Toast.makeText(getApplicationContext(), "Could not connect to device: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+                mConnectSuccessful = false;
+            } catch (SecurityException e) {
+                // Permission denied
+                Log.e(TAG, "Permission denied " + e.getMessage());
+                Toast.makeText(getApplicationContext(), "Permission denied " + e.getMessage(), Toast.LENGTH_LONG).show();
                 e.printStackTrace();
                 mConnectSuccessful = false;
             }
@@ -416,6 +474,7 @@ public class Charting extends Activity {
             }
 
             progressDialog.dismiss();
+
         }
 
     }
@@ -423,7 +482,8 @@ public class Charting extends Activity {
     private ILineDataSet createSet() {
         LineDataSet set = new LineDataSet(mEntries, "Stress Score");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        set.setColor(Color.RED);
+        set.setColor(Color.parseColor("#229D9B"));
+        //set.setColor(Color.RED);
         set.setLineWidth(2f);
         set.setCircleSize(4f);
         set.setDrawCircles(true);
@@ -468,20 +528,46 @@ public class Charting extends Activity {
 
         }
 
-        //    private LineDataSet createSet(){
-        //        LineDataSet set = new LineDataSet(mEntries, "Real-time Data");
-        //        set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        //        set.setColor(Color.RED);
-        //        set.setLineWidth(2f);
-        //        set.setDrawCircles(false);
-        //        set.setDrawValues(false);
-        //       return set;
 
-
-        // }
 
     }
 
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return new Charting.BluetoothSocketWrapper(mBTSocket, mDevice);
+    }
+
+    private static class BluetoothSocketWrapper {
+        public BluetoothSocket socket;
+        public BluetoothDevice device;
+
+        public BluetoothSocketWrapper(BluetoothSocket socket, BluetoothDevice device) {
+            this.socket = socket;
+            this.device = device;
+        }
+    }
+
+    private void restartRecalibrate() {
+        OutputStream outputStream;
+        String message = "R";
+
+        try {
+            outputStream = mBTSocket.getOutputStream();
+            outputStream.write(message.getBytes());
+            outputStream.flush();
+        }catch (IOException e){
+            Log.e(TAG, "Error sending message to Arduino", e);
+        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
 
 
 }

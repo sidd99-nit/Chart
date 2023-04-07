@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFF0"
+    android:background="#dff6fd"
     tools:context=".MonitoringScreen">
 
     <LinearLayout
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
                 android:layout_marginTop="20dp"
-                android:background="#eeeeee"
+                android:background="#f2f2f2"
                 android:hint="  Message shows up here ..."
                 android:scrollbars="vertical"
                 android:typeface="monospace" />

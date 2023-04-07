@@ -1,10 +1,8 @@
 package com.example.chart;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -14,6 +12,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -46,8 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int SETTINGS = 20;
     private UUID mDeviceUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private int mBufferSize = 50000; //Default
-  //  public static final String DEVICE_EXTRA = "com.example.anysensormonitoring.SOCKET";
-   public static final String DEVICE_EXTRA = "98:D3:51:F6:11:53";
+    public static final String DEVICE_EXTRA = "98:D3:51:F6:11:53";   //public static final String DEVICE_EXTRA = "98:D3:51:F6:11:53";
     public static final String DEVICE_UUID = "com.example.anysensormonitoring.uuid";
     private static final String DEVICE_LIST = "com.example.anysensormonitoring.devicelist";
     private static final String DEVICE_LIST_SELECTED = "com.example.anysensormonitoring.devicelistselected";
@@ -62,104 +60,80 @@ public class MainActivity extends AppCompatActivity {
 
         search = findViewById(R.id.search);
         connect = findViewById(R.id.connect);
+
         //removable
         chart=findViewById(R.id.chart);
         //removable
         listView = findViewById(R.id.listview);
 
-       /* if (savedInstanceState != null) {
-            ArrayList<BluetoothDevice> list = savedInstanceState.getParcelableArrayList(DEVICE_LIST);
-            if (list != null) {
-                initList(list);
-                MyAdapter adapter = (MyAdapter) listView.getAdapter();
-                int selectedIndex = savedInstanceState.getInt(DEVICE_LIST_SELECTED);
-                if (selectedIndex != -1) {
-                    adapter.setSelectedIndex(selectedIndex);
-                    connect.setEnabled(true);
-                }
-            } else {
-                initList(new ArrayList<>());
-            }
 
-        } else {
-            initList(new ArrayList<>());
-        } */
-
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null)
+        {
             ArrayList<BluetoothDevice> list = savedInstanceState.getParcelableArrayList(DEVICE_LIST);
-            if (list != null) {
+            if (list != null)
+            {
                 initList(list);
                 MyAdapter adapter = (MyAdapter) listView.getAdapter();
                 int selectedIndex = savedInstanceState.getInt(DEVICE_LIST_SELECTED, -1);
-                if (adapter != null) {
-                    if (selectedIndex != -1) {
+                if (adapter != null)
+                {
+                    if (selectedIndex != -1)
+                    {
                         adapter.setSelectedIndex(selectedIndex);
                         connect.setEnabled(true);
                     }
-                } else {
+                } else
+                {
                     Log.e(TAG, "Adapter is null");
                     initList(new ArrayList<>());
                 }
-            } else {
-                Log.e(TAG, "Device list is null");
-                initList(new ArrayList<>());
             }
-        } else {
+            else {
+                    Log.e(TAG, "Device list is null");
+                    initList(new ArrayList<>());
+                 }
+        }
+        else
+        {
             initList(new ArrayList<>());
         }
 
 
-       /* search.setOnClickListener(arg0 -> {
+        search.setOnClickListener(arg0 ->
+        {
             mBTAdapter = BluetoothAdapter.getDefaultAdapter();
-
-            if (mBTAdapter == null) {
+            if (mBTAdapter == null)
+            {
                 Toast.makeText(getApplicationContext(), "Bluetooth not found", Toast.LENGTH_SHORT).show();
-            } else if (!mBTAdapter.isEnabled()) {
+            }
+            else if (!mBTAdapter.isEnabled())
+            {
                 Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED)
                 {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
                     {
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 2);
-
-                    }
-                }
-
-                startActivityForResult(enableBT,BT_ENABLE_REQUEST);
-
-            } else {
-                new SearchDevices().execute();
-            }
-        });  */
-
-        search.setOnClickListener(arg0 -> {
-            mBTAdapter = BluetoothAdapter.getDefaultAdapter();
-
-            if (mBTAdapter == null) {
-                Toast.makeText(getApplicationContext(), "Bluetooth not found", Toast.LENGTH_SHORT).show();
-            } else if (!mBTAdapter.isEnabled()) {
-                Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-
-                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                         ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 2);
                     }
                 }
 
                 try {
                     startActivityForResult(enableBT,BT_ENABLE_REQUEST);
-                } catch (ActivityNotFoundException e) {
+                } catch (ActivityNotFoundException e)
+                {
                     Toast.makeText(getApplicationContext(), "Bluetooth enable request failed", Toast.LENGTH_SHORT).show();
                 }
 
-            } else {
+            }
+            else
+            {
                 new SearchDevices().execute();
             }
         });
 
 
-        connect.setOnClickListener(arg0 -> {
+        connect.setOnClickListener(arg0 ->
+        {
             try {
                 BluetoothDevice device = ((MyAdapter) (listView.getAdapter())).getSelectedItem();
                 Intent intent = new Intent(getApplicationContext(), MonitoringScreen.class);
@@ -188,34 +162,45 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
+        int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
 
     }
 
-    protected void onPause() {
-// TODO Auto-generated method stub
+    protected void onPause()
+    {
+        // TODO Auto-generated method stub
         super.onPause();
     }
 
     @Override
-    protected void onStop() {
-// TODO Auto-generated method stub
+    protected void onStop()
+    {
+        // TODO Auto-generated method stub
         super.onStop();
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        switch (requestCode)
+        {
             case BT_ENABLE_REQUEST:
-                if (resultCode == RESULT_OK) {
+                if (resultCode == RESULT_OK)
+                {
                     Log.d("","InputStream is null");
+
                     //  msg("Bluetooth Enabled successfully");
 
                     Toast.makeText(getApplicationContext(), "Bluetooth Enabled successfully", Toast.LENGTH_LONG).show();
                     new SearchDevices().execute();
-
-                } else {
+                }
+                else
+                {
                     msg("Bluetooth couldn't be enabled");
                 }
                 break;
@@ -252,7 +237,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Quick way to call the Toast
      */
-    private void msg(String str) {
+    private void msg(String str)
+    {
         Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
     }
 
@@ -260,7 +246,8 @@ public class MainActivity extends AppCompatActivity {
      * Initialize the List adapter
      * @param objects
      */
-    private void initList(List<BluetoothDevice> objects) {
+    private void initList(List<BluetoothDevice> objects)
+    {
         final MyAdapter adapter = new MyAdapter(getApplicationContext(), R.layout.list_item, R.id.lstContent, objects);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((parent, view, position, id) -> {
@@ -275,11 +262,11 @@ public class MainActivity extends AppCompatActivity {
      * @author ryder
      *
      */
-    private  class SearchDevices extends AsyncTask<Void, Void, List<BluetoothDevice>> {
-
+    private  class SearchDevices extends AsyncTask<Void, Void, List<BluetoothDevice>>
+    {
         @Override
-        protected List<BluetoothDevice> doInBackground(Void... params) {
-
+        protected List<BluetoothDevice> doInBackground(Void... params)
+        {
             if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED)
             {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
@@ -300,12 +287,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(List<BluetoothDevice> listDevices) {
+        protected void onPostExecute(List<BluetoothDevice> listDevices)
+        {
             super.onPostExecute(listDevices);
-            if (listDevices.size() > 0) {
+            if (listDevices.size() > 0)
+            {
                 MyAdapter adapter = (MyAdapter) listView.getAdapter();
                 adapter.replaceItems(listDevices);
-            } else {
+            }
+            else
+            {
                 msg("No paired devices found, please pair your serial BT device and try again");
             }
         }
@@ -321,20 +312,23 @@ public class MainActivity extends AppCompatActivity {
      * @author ryder
      *
      */
-    private class MyAdapter extends ArrayAdapter<BluetoothDevice> {
+    private class MyAdapter extends ArrayAdapter<BluetoothDevice>
+    {
         private int selectedIndex;
         private Context context;
         private int selectedColor = Color.parseColor("#abcdef");
         private List<BluetoothDevice> myList;
 
-        public MyAdapter(Context ctx, int resource, int textViewResourceId, List<BluetoothDevice> objects) {
+        public MyAdapter(Context ctx, int resource, int textViewResourceId, List<BluetoothDevice> objects)
+        {
             super(ctx, resource, textViewResourceId, objects);
             context = ctx;
             myList = objects;
             selectedIndex = -1;
         }
 
-        public void setSelectedIndex(int position) {
+        public void setSelectedIndex(int position)
+        {
             selectedIndex = position;
             notifyDataSetChanged();
         }
@@ -371,47 +365,14 @@ public class MainActivity extends AppCompatActivity {
             return myList;
         }
 
-      /*  @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View vi = convertView;
-            ViewHolder holder;
-            if (convertView == null) {
-                vi = LayoutInflater.from(context).inflate(R.layout.list_item, null);
-                holder = new ViewHolder();
 
-                holder.tv = vi.findViewById(R.id.lstContent);
-
-                vi.setTag(holder);
-            } else {
-                holder = (ViewHolder) vi.getTag();
-            }
-
-            if (selectedIndex != -1 && position == selectedIndex) {
-                holder.tv.setBackgroundColor(selectedColor);
-            } else {
-                holder.tv.setBackgroundColor(Color.WHITE);
-            }
-            BluetoothDevice device = myList.get(position);
-
-            if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_DENIED && ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_DENIED)
-            {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
-                {
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_CONNECT}, 2);
-                    ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.BLUETOOTH_SCAN}, 2);
-                }
-            }
-
-            holder.tv.setText(device.getName() + "\n " + device.getAddress());
-
-            return vi;
-        } */
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View vi = convertView;
             ViewHolder holder;
             try {
-                if (convertView == null) {
+                if (convertView == null)
+                {
                     vi = LayoutInflater.from(context).inflate(R.layout.list_item, null);
                     holder = new ViewHolder();
                     holder.tv = vi.findViewById(R.id.lstContent);
@@ -420,7 +381,8 @@ public class MainActivity extends AppCompatActivity {
                     holder = (ViewHolder) vi.getTag();
                 }
 
-                if (selectedIndex != -1 && position == selectedIndex) {
+                if (selectedIndex != -1 && position == selectedIndex)
+                {
                     holder.tv.setBackgroundColor(selectedColor);
                 } else {
                     holder.tv.setBackgroundColor(Color.WHITE);
@@ -453,15 +415,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-  /*  @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId()==R.id.action_settings)
-        {
-            Intent intent = new Intent(MainActivity.this, PreferencesActivity.class);
-            startActivity(intent);
-        }
-        return super.onOptionsItemSelected(item);
-    } */
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

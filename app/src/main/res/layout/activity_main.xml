@@ -4,7 +4,7 @@
     android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFF0"
+    android:background="#dff6fd"
     android:orientation="vertical"
     tools:context=".MainActivity">
 
@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="#FFFFF0"
+        android:background="#dff6fd"
         android:layout_marginTop="20dp">
 
         <Button
@@ -46,7 +46,8 @@
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:backgroundTint="#FFFFF0">
+        android:backgroundTint="#effafe"
+        android:background="#effafe">
     </ListView>
 
 </LinearLayout>
