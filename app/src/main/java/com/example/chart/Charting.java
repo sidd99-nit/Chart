@@ -1,16 +1,11 @@
 package com.example.chart;
 
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.UUID;
 
 import android.Manifest;
@@ -30,15 +25,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.text.format.DateFormat;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -47,29 +37,17 @@ import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
-import com.github.mikephil.charting.components.Description;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.Legend.LegendForm;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
-import com.github.mikephil.charting.components.YAxis.AxisDependency;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
-import java.io.IOException;
-import java.sql.Time;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 
 public class Charting extends Activity {
@@ -83,6 +61,9 @@ public class Charting extends Activity {
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
     private ReadInput mReadThread = null;
+    private ArrayList<Integer> values = new ArrayList<>();
+
+
 
 
     private boolean mIsUserInitiatedDisconnect = false;
@@ -133,9 +114,11 @@ public class Charting extends Activity {
             {
                 try
                 {
+                    Log.d(TAG, "Array Size: " + values.size() );
                     mIsBluetoothConnected=false;
                     mBTSocket.close();
-                    Intent mainIntent=new Intent(Charting.this,MainActivity.class);
+                    Intent mainIntent=new Intent(Charting.this,Results.class);
+                    mainIntent.putIntegerArrayListExtra("myArray", (ArrayList<Integer>) values);
                     startActivity(mainIntent);
                 }
                 catch (IOException e)
@@ -266,6 +249,12 @@ public class Charting extends Activity {
                         int gsrV=extractNumberFromString(strInput);
                         String str = Integer.toString(gsrV);
 
+                        //store in array
+                        if(gsrV!=0){
+                            values.add(gsrV);
+                        }
+                        //store in array
+
                         //file system
 
                         if(chkFile.isChecked() && gsrV!=0) {
@@ -308,7 +297,6 @@ public class Charting extends Activity {
             }
 
         }
-
 
         private int extractNumberFromString(String strInput) {
             int number=0;
