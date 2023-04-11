@@ -9,8 +9,10 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -28,6 +30,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -45,18 +48,44 @@ public class Results extends AppCompatActivity {
     private float avg=0;
     private int sum=0;
     private TextView stats;
+    private String fileNameString;
+
+    //added new functionality of past records
+
+    private Button add;
+
+    private String dataOverDb;
+    private String maxString;
+    private String avgString;
+    private String minSting;
+    private DBHandler dbHandler;
+    private String fileName;
+
+    //added new functionality of past records
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.results);
 
+        dbHandler = new DBHandler(Results.this);
+
 
         back = findViewById(R.id.back);
         stats = findViewById(R.id.stats);
 
+        //added new functionality of past records
+         add = findViewById(R.id.addData);
+        //added new functionality of past records
+
+
         Intent intent = getIntent();
         ArrayList<String> myArray = intent.getStringArrayListExtra("myArray");
+
+        //added new functionality of past records
+        fileNameString = intent.getStringExtra("fileName");
+        //added new functionality of past records
 
         array = myArray.toArray(new Integer[myArray.size()]);
 
@@ -85,6 +114,14 @@ public class Results extends AppCompatActivity {
         back.setOnClickListener(v -> {
             Intent mainIntent=new Intent(Results.this,MainActivity.class);
             startActivity(mainIntent);
+        });
+
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dbHandler.addNewCourse(maxString, minSting, avgString, dataOverDb, fileName);
+                Toast.makeText(Results.this, "Course has been added.", Toast.LENGTH_SHORT).show();
+            }
         });
 
 
@@ -136,6 +173,15 @@ public class Results extends AppCompatActivity {
         {
           mEntries.add(new Entry(i,array[i]));
         }
+
+        //added new functionality of past records
+
+        dataOverDb = Arrays.toString(array);
+        maxString = Integer.toString(max);
+        minSting = Integer.toString(min);
+        avgString = Float.toString(avg);
+        fileName = fileNameString;
+        //added new functionality of past records
 
 
 //        mEntries.add(new Entry(0, 50));

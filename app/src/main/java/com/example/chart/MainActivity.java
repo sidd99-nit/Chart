@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,6 +53,14 @@ public class MainActivity extends AppCompatActivity {
     public static final String BUFFER_SIZE = "com.example.anysensormonitoring.buffersize";
     private static final String TAG = "BlueTest5-MainActivity";
 
+    //added new functionality of past records
+
+    private EditText fileNameEditText;
+    private  String  fileNameString;
+    private Button viewPrevious;
+
+    //added new functionality of past records
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
 
         search = findViewById(R.id.search);
         connect = findViewById(R.id.connect);
+
+        //added new functionality of past records
+        fileNameEditText = findViewById(R.id.fileName);
+        viewPrevious = findViewById(R.id.viewPrevious);
+        //added new functionality of past records
+
 
         //removable
         chart=findViewById(R.id.chart);
@@ -155,12 +170,32 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(DEVICE_EXTRA, device);
                 intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
                 intent.putExtra(BUFFER_SIZE, mBufferSize);
+
+                //added new functionality of past records
+                fileNameString = fileNameEditText.getText().toString();
+                intent.putExtra("fileName",fileNameString);
+
+                fileNameEditText.setText("");
+                //added new functionality of past records
+
                 startActivity(intent);
             }catch (Exception e){
                 Toast.makeText(getApplicationContext(),"No Device Selected",Toast.LENGTH_SHORT).show();
                 Log.e("My App","No Device Selected",e);
             }
         });
+
+        //added new functionality of past records
+        viewPrevious.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // opening a new activity via a intent.
+                Intent i = new Intent(MainActivity.this, ViewCourses.class);
+                startActivity(i);
+            }
+        });
+        //added new functionality of past records
+
 
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {

@@ -63,7 +63,9 @@ public class Charting extends Activity {
     private ReadInput mReadThread = null;
     private ArrayList<Integer> values = new ArrayList<>();
 
-
+    //added new functionality of past records
+    private  String  fileNameString;
+    //added new functionality of past records
 
 
     private boolean mIsUserInitiatedDisconnect = false;
@@ -85,7 +87,12 @@ public class Charting extends Activity {
 
     String FILENAME =  DateFormat.format("MM-dd-yyyyy-h-mmssaa", System.currentTimeMillis()).toString();
     File folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    File myFile = new File(folder,"Stress"+ FILENAME+".txt"); ;
+//  File myFile = new File(folder,"Stress"+ FILENAME+".txt");
+
+    //added new functionality of past records
+    File myFile;
+    //added new functionality of past records
+
     FileOutputStream fstream;
 
     //file system
@@ -101,6 +108,13 @@ public class Charting extends Activity {
         mDevice = b.getParcelable(MainActivity.DEVICE_EXTRA);
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
+
+        //added new functionality of past records
+        fileNameString = intent.getStringExtra("fileName");
+        myFile = new File(folder,"Stress "+ fileNameString + " " + FILENAME+".txt");
+        //added new functionality of past records
+
+
         Log.d(TAG, "Ready");
         disc=findViewById(R.id.disc);
         chkReceiveText=findViewById(R.id.chkReceiveText);
@@ -119,6 +133,11 @@ public class Charting extends Activity {
                     mBTSocket.close();
                     Intent mainIntent=new Intent(Charting.this,Results.class);
                     mainIntent.putIntegerArrayListExtra("myArray", (ArrayList<Integer>) values);
+
+                    //added new functionality of past records
+                    mainIntent.putExtra("fileName",fileNameString);
+                    //added new functionality of past records
+
                     startActivity(mainIntent);
                 }
                 catch (IOException e)
