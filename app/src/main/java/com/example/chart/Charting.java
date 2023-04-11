@@ -489,7 +489,7 @@ public class Charting extends Activity {
     private ILineDataSet createSet() {
         LineDataSet set = new LineDataSet(mEntries, "Stress Score");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        set.setColor(Color.parseColor("#229D9B"));
+        set.setColor(Color.parseColor("#0086b3"));
         //set.setColor(Color.RED);
         set.setLineWidth(2f);
         set.setCircleSize(4f);

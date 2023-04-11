@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
@@ -21,6 +21,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="3dp"
+            android:background="#b3d9ff"
             android:text="Max Value"
             android:textColor="@color/black" />
 
@@ -36,6 +37,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="#b3d9ff"
                 android:padding="3dp"
                 android:text="Min Value"
                 android:textColor="@color/black" />
@@ -47,6 +49,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="#b3d9ff"
                 android:padding="3dp"
                 android:text="Average"
                 android:textColor="@color/black" />
@@ -57,6 +60,7 @@
             android:id="@+id/idTVFileName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#b3d9ff"
             android:padding="3dp"
             android:text="File Name"
             android:textColor="@color/black" />

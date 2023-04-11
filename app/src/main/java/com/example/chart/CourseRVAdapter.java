@@ -2,6 +2,7 @@ package com.example.chart;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,10 +39,17 @@ public class CourseRVAdapter extends RecyclerView.Adapter<CourseRVAdapter.ViewHo
         // on below line we are setting data
         // to our views of recycler view item.
         CourseModal modal = courseModalArrayList.get(position);
-        holder.maxValueTV.setText(modal.getMaxValue());
-        holder.minValueTV.setText(modal.getMinValue());
-        holder.avgValueTV.setText(modal.getAvgValue());
-        holder.fileNameTV.setText(modal.getFileName());
+        holder.maxValueTV.setText("Max: "+modal.getMaxValue());
+        holder.maxValueTV.setTypeface(null,Typeface.ITALIC);
+
+        holder.minValueTV.setText("Min: "+modal.getMinValue());
+        holder.minValueTV.setTypeface(null,Typeface.ITALIC);
+
+        holder.avgValueTV.setText("Avg: "+modal.getAvgValue());
+        holder.avgValueTV.setTypeface(null,Typeface.ITALIC);
+
+        holder.fileNameTV.setText("Name: "+modal.getFileName());
+        holder.fileNameTV.setTypeface(Typeface.DEFAULT_BOLD);
 //        holder.dataOverDbValueTV.setText(modal.getDataOverDb());
 
 

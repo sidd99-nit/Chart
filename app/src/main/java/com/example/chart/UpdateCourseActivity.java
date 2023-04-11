@@ -47,6 +47,7 @@ public class UpdateCourseActivity extends AppCompatActivity {
     private TextView minValueTV;
     private TextView avgValueTV;
     private TextView fileNameTV;
+    private Button deleteCourseBtn;
 
     //For Setting The Statistics
 
@@ -70,6 +71,8 @@ public class UpdateCourseActivity extends AppCompatActivity {
         minValueTV = (TextView)findViewById(R.id.minValueView);
         avgValueTV = (TextView)findViewById(R.id.avgValueView);
         fileNameTV = (TextView)findViewById(R.id.fileNameView);
+
+        deleteCourseBtn = findViewById(R.id.idBtnDelete);
 
         //For Setting The Statistics
 
@@ -129,7 +132,7 @@ public class UpdateCourseActivity extends AppCompatActivity {
         maxValueTV.setText("Max : "+maxValue);
         minValueTV.setText("Min : "+minValue);
         avgValueTV.setText("Avg : "+avgValue);
-        fileNameTV.setText("Name : "+ fileName);
+        fileNameTV.setText(fileName);
         //For Setting The Statistics
 
 
@@ -163,7 +166,8 @@ public class UpdateCourseActivity extends AppCompatActivity {
         }
 
         LineDataSet dataSet = new LineDataSet(mEntries, "Data Set");
-        dataSet.setColor(Color.RED);
+        dataSet.setColor(Color.parseColor("#0086b3"));
+
         dataSet.setLineWidth(1.5f);
         dataSet.setDrawValues(false);
         dataSet.setDrawCircleHole(false);
@@ -199,6 +203,18 @@ public class UpdateCourseActivity extends AppCompatActivity {
                 Toast.makeText(UpdateCourseActivity.this, "Review Done..", Toast.LENGTH_SHORT).show();
 
                 // launching our main activity.
+                Intent i = new Intent(UpdateCourseActivity.this, MainActivity.class);
+                startActivity(i);
+            }
+        });
+
+        // adding on click listener for delete button to delete our course.
+        deleteCourseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // calling a method to delete our course.
+                dbHandler.deleteCourse(fileName);
+                Toast.makeText(UpdateCourseActivity.this, "Record Deleted..", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(UpdateCourseActivity.this, MainActivity.class);
                 startActivity(i);
             }

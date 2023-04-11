@@ -9,7 +9,7 @@ import android.os.Handler;
 
 public class LoadingActivity extends AppCompatActivity {
 
-     static final long LOADING_DELAY=4000;
+     static final long LOADING_DELAY=2000;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

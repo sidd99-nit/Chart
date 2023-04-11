@@ -26,8 +26,8 @@
 
         <Button
             android:id="@+id/idBtnUpdateCourse"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="374dp"
+            android:layout_height="46dp"
             android:layout_margin="10dp"
             android:text="Review Done"
             android:textAllCaps="false"
@@ -37,6 +37,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chart1"
             app:layout_constraintVertical_bias="0.213" />
+
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="381dp"
@@ -50,10 +52,12 @@
 
             <TextView
                 android:id="@+id/fileNameView"
-                android:layout_width="102dp"
+                android:layout_width="120dp"
                 android:layout_height="32dp"
                 android:text="File Name"
                 android:textStyle="bold"
+                android:gravity="center"
+                android:background="#cceeff"
                 app:layout_constraintBottom_toTopOf="@+id/minValueView"
                 app:layout_constraintEnd_toStartOf="@+id/maxValueView"
                 app:layout_constraintHorizontal_bias="0.403"
@@ -63,11 +67,13 @@
 
             <TextView
                 android:id="@+id/maxValueView"
-                android:layout_width="102dp"
+                android:layout_width="120dp"
                 android:layout_height="32dp"
                 android:layout_marginTop="16dp"
+                android:background="#cceeff"
                 android:text="Max Value"
                 android:textStyle="bold"
+                android:gravity="center"
                 app:layout_constraintBottom_toTopOf="@+id/avgValueView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.774"
@@ -76,10 +82,12 @@
 
             <TextView
                 android:id="@+id/minValueView"
-                android:layout_width="102dp"
+                android:layout_width="120dp"
                 android:layout_height="32dp"
                 android:text="Min Value"
+                android:background="#cceeff"
                 android:textStyle="bold"
+                android:gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/avgValueView"
                 app:layout_constraintHorizontal_bias="0.403"
@@ -89,9 +97,11 @@
 
             <TextView
                 android:id="@+id/avgValueView"
-                android:layout_width="102dp"
+                android:layout_width="120dp"
                 android:layout_height="32dp"
                 android:text="Avg Value"
+                android:gravity="center"
+                android:background="#cceeff"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -100,6 +110,17 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.752" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Button
+            android:id="@+id/idBtnDelete"
+            android:layout_width="374dp"
+            android:layout_height="46dp"
+            android:text="Delete Record"
+            android:textAllCaps="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/idBtnUpdateCourse" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

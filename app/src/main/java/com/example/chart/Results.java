@@ -120,7 +120,7 @@ public class Results extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dbHandler.addNewCourse(maxString, minSting, avgString, dataOverDb, fileName);
-                Toast.makeText(Results.this, "Course has been added.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Results.this, "Result has been added.", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -242,7 +242,7 @@ public class Results extends AppCompatActivity {
 
 
         LineDataSet dataSet = new LineDataSet(mEntries, "Data Set");
-        dataSet.setColor(Color.RED);
+        dataSet.setColor(Color.parseColor("#0086b3"));
         dataSet.setLineWidth(1.5f);
         dataSet.setDrawCircles(false);
         dataSet.setDrawCircleHole(false);
